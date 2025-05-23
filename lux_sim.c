@@ -5,41 +5,61 @@
 #include <time.h>
 #define MIN_sensor 0.10
 #define MAX_sensor 100000.00
-void Error(void){
-    printf("Error!");
-    exit(1);
+void Error(int error) {
+    FILE *log = fopen("task3.log", "a"); // Mở ở chế độ append
+    if (!log) {
+        // Thử tạo file mới nếu không mở được
+        log = fopen("task1.log", "w");
+    }
+    switch (error) {
+        case 1:
+            fprintf(log, "Error 01: invalid command\n".);
+            fclose(log);
+            exit(0);
+            
+        case 2:
+            fprintf(log,  "Error 02: invalid argument\n");
+            fclose(log);
+            exit(0);
+            
+        case 3:
+            fprintf(log, "Error 03: file access denied");
+            fclose(log);
+            exit(0);
+        
+    fclose(log);
+    
 }
-
 void input_data(int count ,char*arr[],int* n, int* s, int* i){
     *n = 1;
     *s = 60;
     *i = 24;
     if(count % 2 == 0 || count > 7) {
-        Error();
+        Error(1);
     } else
 {
     for( int k=1; k<=count-1; k+=2){
         for(int j=0; j < strlen(arr[k+1]);j++ ){
             if (!isdigit(arr[k+1][j])){ 
-                Error();      
+                Error(1);      
             } else
                 continue;
         }
 
         if (strcmp(arr[k],"-n")==0){
              *n = atoi(arr[k+1]);
-             if(*n<1) Error();
+             if(*n<1) Error(2);
                      
         } else if (strcmp(arr[k],"-s")==0){
              *s = atoi(arr[k+1]);
-             if(*s<1) Error();
+             if(*s<1) Error(2);
                           
         } else if (strcmp(arr[k],"-i")==0){
              *i = atoi(arr[k+1]);
-             if(*i<1) Error();
+             if(*i<1) Error(2);
                         
         } else {
-            Error();
+            Error(1);
         } 
             
     }
@@ -49,6 +69,10 @@ void input_data(int count ,char*arr[],int* n, int* s, int* i){
 
 void read_time(int n, int s,int i){
     FILE *file = fopen("lux_sim.csv", "w");
+    if (!file) {
+        ERROR(3);
+    }
+
     fprintf(file, "id,time,value\n");
     time_t now;
     char time_str[30];
