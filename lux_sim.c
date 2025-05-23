@@ -6,7 +6,7 @@
 #define MIN_sensor 0.10
 #define MAX_sensor 100000.00
 void Error(int error) {
-    FILE *log = fopen("task3.log", "a"); // Mở ở chế độ append
+    FILE *log = fopen("task1.log", "a"); // Mở ở chế độ append
     if (!log) {
         // Thử tạo file mới nếu không mở được
         log = fopen("task1.log", "w");
