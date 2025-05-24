@@ -13,7 +13,7 @@ void Error(int error) {
     }
     switch (error) {
         case 1:
-            fprintf(log, "Error 01: invalid command\n".);
+            fprintf(log, "Error 01: invalid command\n" );
             fclose(log);
             exit(0);
             
@@ -30,6 +30,7 @@ void Error(int error) {
     fclose(log);
     
 }
+}
 void input_data(int count ,char*arr[],int* n, int* s, int* i){
     *n = 1;
     *s = 60;
@@ -40,15 +41,16 @@ void input_data(int count ,char*arr[],int* n, int* s, int* i){
 {
     for( int k=1; k<=count-1; k+=2){
         for(int j=0; j < strlen(arr[k+1]);j++ ){
-            if (!isdigit(arr[k+1][j])){ 
+            if (!isdigit(arr[k+1][j]))
                 Error(1);      
-            } else
-                continue;
+            
+                
         }
 
         if (strcmp(arr[k],"-n")==0){
              *n = atoi(arr[k+1]);
              if(*n<1) Error(2);
+
                      
         } else if (strcmp(arr[k],"-s")==0){
              *s = atoi(arr[k+1]);
@@ -67,11 +69,8 @@ void input_data(int count ,char*arr[],int* n, int* s, int* i){
 }
 
 
-void read_time(int n, int s,int i){
-    FILE *file = fopen("lux_sim.csv", "w");
-    if (!file) {
-        ERROR(3);
-    }
+void read_time(FILE *file,int n, int s,int i){
+   
 
     fprintf(file, "id,time,value\n");
     time_t now;
@@ -91,20 +90,23 @@ void read_time(int n, int s,int i){
         }
         start = start + s ;
     }
-    fclose(file);
+    
 }
 int main(int count, char*arr[]){
     int n, s, i;
     n = 1;
     s = 60;
     i = 24;
-   
-
+    FILE *file = fopen("lux_sim.csv", "w");
+    if (!file) {
+        Error(3);
+    }
+    
     srand(time(NULL));
     input_data(count,arr, &n, &s, &i);
     
-    read_time(n,s,i);
-    
+    read_time(file,n,s,i);
+    fclose(file);
     return 0;
 
 }
