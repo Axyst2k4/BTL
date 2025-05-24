@@ -75,6 +75,7 @@ void read_time(FILE *file,int n, int s,int i){
     fprintf(file, "id,time,value\n");
     time_t now;
     char time_str[30];
+    float value_sensor;    
     time(&now);
     time_t start =now - i*3600;
     while(start<=now){
@@ -82,7 +83,6 @@ void read_time(FILE *file,int n, int s,int i){
         strftime(time_str, sizeof(time_str), "%Y:%m:%d %H:%M:%S", localtime(&start));
         
         for (int id =1; id<=n;id++){
-           float value_sensor;           
             value_sensor = MIN_sensor + (rand()/(float)RAND_MAX)*(MAX_sensor-MIN_sensor);
             fprintf(file,"%d,",id);
             fprintf(file,"%s,",time_str);
