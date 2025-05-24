@@ -89,45 +89,31 @@ int count_lines(FILE *file_in) {
 void read_data(FILE *file_in, char ***fields, int count) {
     char line[100];
     int row = 0;
-
+    
+    char expected_header[] = "id,time,location,value,condition";
     while (fgets(line, sizeof(line), file_in) && row < count) {
         line[strcspn(line, "\n")] = '\0'; // Xóa ký tự xuống dòng
-
-        // Lưu bản sao của dòng trước khi strtok sửa đổi nó
-        char line_copy[100];
-        strcpy(line_copy, line); 
+         char *start = line;
         // Kiểm tra tiêu đề tại dòng 0 (trước khi strtok sửa đổi 'line')
-        if (row == 0) {
-            char expected_header[] = "id,time,location,value,condition";
-            // Xóa khoảng trắng ở đầu/cuối của line_copy cho mục đích so sánh
-            char *start = line_copy;
-            while (isspace((unsigned char)*start)) start++;
-            char *end = start + strlen(start) - 1;
-            while (end > start && isspace((unsigned char)*end)) *end = '\0', end--;
-
-            if (strlen(start) == 0 || strcmp(start, expected_header) != 0) {
+        if (row == 0) {       
+            if ( strcmp(start, expected_header) != 0) {
                 int error = 2;
-                ERROR(error, row); // Ghi lỗi nhưng không thoát
-                row++;
-                continue; // Bỏ qua dòng tiêu đề không hợp lệ hoặc trống
+                ERROR(error, row); // Ghi lỗi nhưng không thoát 
             }
         }
         //kiem tra dau","
-         // Check for too many commas (more than 4 commas means more than 5 fields)
+        
         int comma_count = 0;
-        for (int i = 0; line_copy[i] != '\0'; i++) {
-            if (line_copy[i] == ',') {
+        for (int i = 0; line[i] != '\0'; i++) {
+            if (line[i] == ',') {
                 comma_count++;
             }
         }
 
-        //if (comma_count > (FIELD_COUNT - 1)) { // FIELD_COUNT is 5, so 4 commas expected
-            //int error = 4; // Assign a new error code for this case
-            //ERROR(error, row);
-            //strcpy(fields[row][0],"commas");
-            //row++;
-            //continue; // Skip this line as it has too many fields
-        //}
+        if (comma_count > (FIELD_COUNT - 1)) { 
+            row++;
+            continue; 
+        }
 
         // Bây giờ mới dùng strtok lên 'line' (hoặc line_copy nếu muốn phân tích lại)
         char *token = strtok(line, ","); 
