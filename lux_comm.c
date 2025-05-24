@@ -66,17 +66,7 @@ int count_lines(FILE *file_in) {
     int count = 0;
     char ch;
     char last_char = 0;
-
-    // Kiểm tra file rỗng
-    if (fseek(file_in, 0, SEEK_END) == 0) {
-        long size = ftell(file_in);
-        if (size == 0) {
-            rewind(file_in);
-            return 0; // File rỗng
-        }
-        rewind(file_in);
-    }
-
+    
     while ((ch = fgetc(file_in)) != EOF) {
         if (ch == '\n') {
             count++;
