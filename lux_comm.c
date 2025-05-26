@@ -497,7 +497,8 @@ void convert_raw_data(FILE *file_out, char ***fields, int count) {
             raw_fields[i][j] = (unsigned char)strtol(fields[i][j], NULL, 16);
         }
     }
-
+    
+    fprintf(file_out, "id,time,location,value,condition\n");
     for (int i = 0; i < count; i++) { 
         // Kiểm tra tính hợp lệ của packet
         if (!validate_packet_fields(raw_fields, i)) {
@@ -540,10 +541,16 @@ void convert_raw_data(FILE *file_out, char ***fields, int count) {
         sscanf(fields[i][9], "%2hhx", &float_bytes[2]);
         sscanf(fields[i][10], "%2hhx", &float_bytes[1]);
         sscanf(fields[i][11], "%2hhx", &float_bytes[0]); // Byte cao nhất
-
+//-------------------------------------------------------------------------------------
         float value;
         memcpy(&value, float_bytes, sizeof(float));
-
+        char buffer[32];
+         sprintf(buffer, "%.2f", value); 
+          int len = strlen(buffer);
+    while (len > 0 && buffer[len - 1] == '0') {
+        buffer[--len] = '\0';
+    }
+//--------------------------------------------------------------------------------------        
         char condition_char[10];
         switch (condition) {
             case 0:
@@ -566,7 +573,7 @@ void convert_raw_data(FILE *file_out, char ***fields, int count) {
         fprintf(file_out, "%d,", id);
         fprintf(file_out, "%s,", time);
         fprintf(file_out, "%d,", location);
-        fprintf(file_out, "%.2f,", value);
+        fprintf(file_out, "%s,", buffer);
         fprintf(file_out, "%s\n", condition_char);
     }
 
@@ -651,10 +658,6 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 read_data(file_in, fields, count); // Đọc dữ liệu trước
-                //if (count > 0 && strcmp(fields[0][0], "id") != 0) {
-                   // int error = 2, row = 0;
-                   // ERROR(error, row);
-                //}
                 convert_data_raw(file_out, fields, count);
                 for (int i = 0; i < count; i++) {
                     for (int j = 0; j < FIELD_COUNT; j++) {
