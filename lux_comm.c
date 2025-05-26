@@ -252,15 +252,24 @@ int check_lux(const char *str, int row) {
 
     return 1; // Hợp lệ
 }
-
+int data_duplicate(char ***fields, int current_line_idx) {
+    for (int n = 0; n < current_line_idx; n++) {
+        for (int j = 0; j < FIELD_COUNT; j++) {
+            if (fields[current_line_idx][j] == NULL || fields[n][j] == NULL ||
+                strcmp(fields[current_line_idx][j], fields[n][j]) != 0) {
+                goto next_line_n;
+            }
+        }
+        return n + 2; 
+        next_line_n:;
+    }
+    return -1;
+}
 // Hàm chuyển đổi dữ liệu và ghi ra file
 void convert_data_raw(FILE *file_out, char ***fields, int count) {
+
     for (int i = 1; i <= count - 1; i++) { // Sửa i < count thành i <= count - 1 để không bỏ qua dòng cuối
         int valid = 1;  // Giả sử dòng hợp lệ
-        //if(strcmp(fields[i][0],"commas")==0){
-        //     continue;
-        //} 
-        // Kiểm tra các trường có rỗng hay không]
         for (int j = 0; j < FIELD_COUNT; j++) {
             if (!fields[i][j] || strcmp(fields[i][j], "") == 0) {
                 int error = 4;
@@ -271,6 +280,16 @@ void convert_data_raw(FILE *file_out, char ***fields, int count) {
         }
         if (!valid) continue;  // Bỏ qua dòng lỗi
       
+
+        int duplicate_line_num = data_duplicate(fields, i); 
+        if (duplicate_line_num != -1) { // Nếu tìm thấy trùng lặp
+            FILE *log = fopen("task3.log", "a"); // Mở file log ở chế độ append
+            if (log) { // Đảm bảo mở file thành công
+                fprintf(log, "Error 06: data at line %d and %d are duplicated\n", duplicate_line_num, i);
+                fclose(log);
+            }
+            continue; // Bỏ qua dòng bị trùng lặp này
+        }
         uint8_t data_for_checksum[15];
         int data_index = 0;
 
@@ -307,7 +326,7 @@ void convert_data_raw(FILE *file_out, char ***fields, int count) {
         t.tm_year -= 1900; // Chuyển về năm kể từ 1900
         t.tm_mon -= 1;     // Tháng từ 0-11
         time_t timestamp = mktime(&t);
-        timestamp -= 7 * 3600; // Điều chỉnh múi giờ +07 thành UTC
+       
         data_for_checksum[data_index++] = (timestamp >> 24) & 0xFF;
         data_for_checksum[data_index++] = (timestamp >> 16) & 0xFF;
         data_for_checksum[data_index++] = (timestamp >> 8) & 0xFF;
