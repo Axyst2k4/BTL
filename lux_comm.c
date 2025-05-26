@@ -622,7 +622,7 @@ int main(int argc, char *argv[]) {
             raw = 0;
         } else {
             int error = 2, row = 0;
-            ERROR(error, row);
+                ERROR(error, row);
         }
     }
 
